@@ -1,73 +1,269 @@
 
    
-   const socket = io();
-    var words = [];
-    
-    var PlayerData = {};
 
-    // /Users/John/Desktop/NodeTests/spooky/assets/CAPTH.ttf
-    //
-    function preload() {
-      console.log('hiiiiiiii')
+
+
+let myvideo
+let otherVideo
+let p5l;
+let role;
+let state// = 'loading'
+let w, h
+
+// let buttons= [];
+let currentLevel = 0;
+let levels = [
+  {'symbols': ['🐭', '🧀', '😸', '🐶', '🐥'], 'len': 3},
+
+  {'symbols': ['😽', '😸', '😆', '🐕', '🐩', '⚠️', '🧀'], 'len': 4}
+          
+]
+
+
+
+const socket = io();
+socket.on("yourRole", data => {
+  role = data;
+  console.log(role)
      
+});
+
+socket.on("state", data => {
+ state = data;
+ console.log('STATE CHANGE')
+ console.log(state)
+    
+});
+
+
+
+
+function setup() {
+  createCanvas(windowWidth, windowHeight)
+  myvideo = createCapture(VIDEO,
+    function(stream){
+   p5l = new p5LiveMedia(this, "CAPTURE", stream, "corndogs") //this refers to the p5 sketch, corndogs is the room
+    
+    // p5l.on('connection', connection)
+    p5l.on('stream', gotStream) //call this function for stream
+    
+    // p5l.on('data', gotData)
+    
+  });
+  w = width
+  h = height
+  myvideo.hide();
+  console.log(levels[0].symbols)
+  textAlign(CENTER)
+  // scribeSetup()
+}
+
+function draw() {
+
+  switch(role) {
+      case 'squeaker':
+        squeakerDraw();
+        break;
+      case 'scribe':
+        scribeDraw();
+        break;
+      default:
+      background(100, 100, 100)
     }
+  
 
-    function setup(){
-      createCanvas(windowWidth, windowHeight);
-      background(255,0,0);
+}
 
-
-
-      socket.emit('joinFromWeb');
-
-
-
-
-    }
-
-   
+function gotStream(incomingStream, id){
+  
+  otherVideo = incomingStream;
+  otherVideo.hide();
+  // let dataToSend = {event: 'hello', y: mouseY};
+  // p5l.send(JSON.stringify(dataToSend));
+}
 
 
-    function mouseDragged() {
-      clear();
-      background(0);
-      noStroke();
-      fill(20,0,175);
-      ellipse(mouseX, mouseY, 36, 36);
-
-      var data = {
-        y: mouseY/windowHeight,
-        x: mouseX/windowWidth,
-
-      }
-      
-
-      socket.emit('movin', data);
-
-    }
-
-
-    function touchMoved() {
-      clear();
-      background(255,0,0);
-      noStroke();
-      // if(PlayerData.isGiest){
-      //   fill(175,0,20);
-      // }else{}
-      fill(20,0,175);
-      ellipse(mouseX, mouseY, 36, 36);
+// function gotData(data, id){
+//   console.log(data, id)
+//     // If it is JSON, parse it
+//   let d = JSON.parse(data);
+//  switch(d.event) {
+//   case 'hello':
+//     console.log('hello')
+//     break;
+//   case 'y':
+//     // code block
+//     break;
+//   default:
+//     // code block
+// }
+//   otherX = d.x;
+//   otherY = d.y;
+  
+// }
 
 
-      var data = {
-        y: mouseY/windowHeight,
-        x: mouseX/windowWidth
 
-      }
 
-      socket.emit('movin', data);
-      return false;
-    }
+// function mouseMoved() {
+//   // Package as JSON to send
+//   let dataToSend = {x: mouseX, y: mouseY};
+//   p5l.send(JSON.stringify(dataToSend));
+// }
 
-    function draw() {
 
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// let myVideo;
+// let otherVideo;
+
+// function setup() {
+//   createCanvas(640, 480);
+
+//   // Web RTC Capture Local "Media Stream" (Webcam Audio and Video)
+//   myVideo = createCapture(VIDEO,
+//     function(stream) {
+//       let p5l = new p5LiveMedia(this, "CAPTURE", stream, "MY_COOL_ROOM_123");
+//       p5l.on('stream', gotStream);
+//     }
+//   );
+//   myVideo.muted = true;
+//   myVideo.hide();
+
+// }
+
+// We got a new stream!
+// function gotStream(stream, id) {
+//   // This is just like a video/stream from createCapture(VIDEO)
+//   otherVideo = stream;
+//   //otherVideo.id and id are the same and unique identifiers
+//   otherVideo.hide();
+// }
+
+
+
+
+
+//*//*//*//*//*//*//*//*//*//*//*//*//
+// Simple Example:
+// function draw() {
+//   background(100, 200, 255);
+
+//   if (myVideo != null) {
+//     image(myVideo, 0, 0, 320, 240);
+//   }
+
+//   if (otherVideo != null) {
+//     image(otherVideo, 320, 0, 320, 240);
+//   }
+// }
+
+
+//*//*//*//*//*//*//*//*//*//*//*//*//
+// Draw o the Video Feeds:
+// function draw() {
+//   ellipse(mouseX,mouseY,20,20);
+
+//   if (frameCount % 100 === 0) {
+//     if (myVideo != null) {
+//       image(myVideo, 0, 0, 320, 240);
+//     }
+
+//     if (otherVideo != null) {
+//       image(otherVideo, 320, 0, 320, 240);
+//     }
+//   }
+// }
+
+
+
+//*//*//*//*//*//*//*//*//*//*//*//*//
+//Moving Video Feeds:
+
+// let myX = 0;
+// let myY = 0;
+
+// let theirX = 0;
+// let theirY = 0;
+
+// function move() {
+//   myX = myX + random(2);
+//   myY = myY + random(2);
+//   if (myX > width) {
+//     myX = 0;
+//   }
+//   if (myY > height) {
+//     myY = 0;
+//   }
+
+//   theirX -= random(2);
+//   theirY += random(2);
+//   if (theirX < 0) {
+//     theirX = width;
+//   }
+//   if (theirY > height) {
+//     theirY = 0;
+//   }
+// }
+
+
+// function draw() {
+//   background(100, 200, 255);
+
+//   if (myVideo != null) {
+//     image(myVideo, myX, myY, 320, 240);
+//   }
+
+//   if (otherVideo != null) {
+//     image(otherVideo, theirX, theirY, 320, 240);
+//   }
+
+//   move();
+// }

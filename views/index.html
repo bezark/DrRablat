@@ -6,10 +6,14 @@
     <!-- <script src="../libraries/socketClient.js"></script> -->
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script> -->
 
-<!--     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/p5.js"></script> -->
-
-    <script src="p5.js"></script>
+    <script type="text/javascript" src="https://p5livemedia.itp.io/simplepeer.min.js"></script>
+	<script type="text/javascript" src="https://p5livemedia.itp.io/socket.io.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/addons/p5.sound.min.js"></script>	
+    <script type="text/javascript" src="https://p5livemedia.itp.io/p5livemedia.js"></script> 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="squeaker.js"></script>
+    <script src="scribe.js"></script>
     <script src="sketch.js"></script>
 
     <style>
@@ -19,194 +23,6 @@
     </style>
   </head>
   <body>
-<!--     <script>
-      /////////////////////////////////////////////
-      const socket = io();
 
-      socket.on("dragging", data => {
-        
-      });
-      socket.on("rolling", data => {
-        
-        
-      });
-      // dragging', data)
-      
-      
-
-      let w, h;
-      let bg = "black";
-
-      let die = {
-        members: [],
-        aDieSelected: false,
-        draw: function() {
-          for (let i = 0; i < this.members.length; i++) {
-            ///PUT dieSelected Logic at the top of the loop. If adieselected, block selection process but still do selection check. If it makes it all the way through the loop without triggering selection, dueselected false
-            this.members[i].update(i);
-            this.members[i].draw();
-          }
-        },
-        w: null,
-        init: function(number) {
-          this.w = windowHeight / 12;
-          rectMode(CENTER);
-          for (i = 0; i < round(number / 2); i++) {
-            var diceBoi = new Dice("red", "yellow");
-            this.members.push(diceBoi);
-            var diceBoi = new Dice("yellow", "red");
-            this.members.push(diceBoi);
-          }
-          // socket.emit("die", this.members);
-        }
-      };
-
-      function setup() {
-        w = windowWidth;
-        h = windowHeight;
-        createCanvas(w, h);
-        frameRate();
-        die.init(20)
-       
-      }
-
-      function draw() {
-        background(bg);
-        die.draw();
-      }
-
-      ////////////////////DICE////////////////////
-
-      class Dice {
-        constructor(face, dot) {
-          (this.x = 0.5),
-            (this.y = 0.5),
-            (this.value = 6),
-            (this.faceColor = color(face)), //make an arg
-            (this.dotColor = color(dot)),
-            (this.selected = false);
-          this.rolling = false;
-        }
-        update(i) {
-          //detection
-          if (!mouseIsPressed) {
-            if (
-              mouseX > this.x*w - die.w / 2 &&
-              mouseX < this.x*w + die.w / 2 &&
-              mouseY > this.y*h - die.w / 2 &&
-              mouseY < this.y*h + die.w / 2
-            ) {
-              if (!die.aDieSelected) {
-                this.selected = true;
-                die.aDieSelected = true;
-              }
-            } else {
-              if (this.selected) {
-                this.selected = false;
-                if (die.aDieSelected) {
-                  die.aDieSelected = false;
-                }
-              }
-            }
-            // console.log(die.aDieSelected)
-          }
-
-          ////////////////////////////
-
-          if (this.selected && mouseIsPressed) {
-            this.drag(i);
-          }
-          if (this.rolling) {
-            this.value = ceil(random(6));
-          }
-        }
-
-        drag(i) {
-          //add detection
-          this.x = mouseX/w;
-          this.y = mouseY/h;
-          var data = {
-            i: i,
-            y: this.y,
-            x: this.x
-          };
-          console.log(data);
-          // socket.emit("moving", data);
-          socket.emit("drag", data);
-        }
-
-        roll(i) {
-          this.rolling = true;
-          var data = {i:i,rolling:true}
-          socket.emit("rolling", data);
-          //socket.emit("die", die.members);
-
-          setTimeout(function() {
-            die.members[i].rolling = false;
-            data.rolling = false;
-            data.value = die.members[i].value;
-            socket.emit("rolling", data);
-          }, 750); // make it stop
-          //could set a millis() property of object and check off that i guess
-        }
-
-        draw() {
-          push();
-          if (this.selected) {
-            stroke("white");
-          }
-          fill(this.faceColor);
-          translate(this.x*w, this.y*h);
-          rect(0, 0, die.w, die.w, 10);
-          fill(this.dotColor);
-          switch (this.value) {
-            case 1:
-              ellipse(0, 0, 0.25 * die.w, 0.25 * die.w);
-              break;
-            case 2:
-              ellipse(-0.25 * die.w, -0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0.25 * die.w, 0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              break;
-            case 3:
-              ellipse(-0.25 * die.w, -0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0, 0, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0.25 * die.w, 0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              break;
-            case 4:
-              ellipse(-0.25 * die.w, -0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0.25 * die.w, 0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(-0.25 * die.w, 0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0.25 * die.w, -0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              break;
-            case 5:
-              ellipse(-0.25 * die.w, -0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0.25 * die.w, 0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(-0.25 * die.w, 0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0.25 * die.w, -0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0, 0, 0.25 * die.w, 0.25 * die.w);
-              break;
-            case 6:
-              ellipse(-0.25 * die.w, -0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0.25 * die.w, 0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(-0.25 * die.w, 0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0.25 * die.w, -0.25 * die.w, 0.25 * die.w, 0.25 * die.w);
-              ellipse(-0.25 * die.w, 0, 0.25 * die.w, 0.25 * die.w);
-              ellipse(0.25 * die.w, 0, 0.25 * die.w, 0.25 * die.w);
-              break;
-          }
-          pop();
-        }
-      }
-
-      ////////Events//////////////////
-
-      function doubleClicked() {
-        for (i = 0; i < die.members.length; i++) {
-          if (die.members[i].selected) {
-            die.members[i].roll(i);
-          } // is this the best way?
-        }
-      }
-    </script> -->
   </body>
 </html>

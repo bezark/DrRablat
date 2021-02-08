@@ -30,10 +30,14 @@ function startGame(){
   // io.emit('state', 'round'); //intro
   
 
- 
-
 }
 
+function levelReset(result){
+  players = players.reverse();
+  startGame();
+}
+
+let roundMessage='';
 io.on('connection', function (socket) {
   // numberOfPlayers ++;
 //  console.log(numberOfPlayers)
@@ -51,17 +55,30 @@ io.on('connection', function (socket) {
     socket.broadcast.emit('rolling', data)
   });
 
-  socket.on('rolling', function (data) {
-    socket.broadcast.emit('rolling', data)
-  });
-  
+
  
-  socket.on('drag', function (data) {
-    
-   
-    socket.broadcast.emit('dragging', data)
-  
+  socket.on('intendedMessage', function (data) {
+    roundMessage = data
+    // socket.broadcast.emit('rolling', data)
+    console.log(roundMessage)
   });
+
+
+  socket.on('videoVisible', function (vv) {
+    
+    socket.broadcast.emit('videoVisible', vv)
+    
+  });
+
+  socket.on('messageCheck', function (message) {
+    let result = (roundMessage==message);
+    let results= [roundMessage, message, result]
+    socket.emit('checkResult',results)
+    socket.broadcast.emit('checkResult',results)
+    console.log(result)
+    setTimeout(levelReset, 5000,results[2]);
+  });
+
   
   
     // Disconnect listener

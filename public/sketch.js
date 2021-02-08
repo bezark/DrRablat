@@ -1,3 +1,4 @@
+// const { text } = require("express");
 
    
 
@@ -8,15 +9,18 @@ let otherVideo
 let p5l;
 let role;
 let state// = 'loading'
-let w, h
-
+let w, h, videoWidth, videoHeight;
+let videoVisible = true
+let ready = false;
 // let buttons= [];
 let currentLevel = 0;
 let levels = [
   {'symbols': ['🐭', '🧀', '😸', '🐶', '🐥'], 'len': 3},
 
-  {'symbols': ['😽', '😸', '😆', '🐕', '🐩', '⚠️', '🧀'], 'len': 4}
-          
+  {'symbols': ['😽', '😸', '😆', '🐕', '🐩', '⚠️', '🧀'], 'len': 4},
+
+  {'symbols': ['😸', '🐭', '🐕', '🐩', '⚠️', '🧀', '🐀', '😹', '⛺'], 'len': 5}
+   
 ]
 
 
@@ -35,6 +39,26 @@ socket.on("state", data => {
     
 });
 
+socket.on("videoVisible", vv => {
+  // console.log('vvvvvvv')
+  videoVisible = vv;
+ });
+
+
+
+let results = [];
+socket.on("checkResult", theresults => {
+  console.log('Result')
+  results = theresults;
+  // console.log(message)
+  state = 'result'
+  videoVisible = true; 
+  if(results[2]){
+    currentLevel++
+  }
+ });
+
+
 
 
 
@@ -52,6 +76,8 @@ function setup() {
   });
   w = width
   h = height
+  videoWidth = w*0.4
+  videoHeight = videoWidth*240/320
   myvideo.hide();
   console.log(levels[0].symbols)
   textAlign(CENTER)
@@ -78,9 +104,30 @@ function gotStream(incomingStream, id){
   
   otherVideo = incomingStream;
   otherVideo.hide();
+  ready = true
   // let dataToSend = {event: 'hello', y: mouseY};
   // p5l.send(JSON.stringify(dataToSend));
 }
+
+
+function videoDraw(){
+  
+  
+  if (myvideo != null){
+  image(myvideo, (width-videoWidth)/2, height*0.65, videoWidth, videoHeight)
+  }
+  if (otherVideo != null && videoVisible ){
+  image(otherVideo, (width-videoWidth)/2, height*0.1, videoWidth, videoHeight)
+  }
+
+
+}
+
+
+// function 
+
+
+
 
 
 // function gotData(data, id){
